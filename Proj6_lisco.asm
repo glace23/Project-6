@@ -11,6 +11,22 @@ TITLE String Primitives and Macros     (Proj6_lisco.asm)
 INCLUDE Irvine32.inc
 
 ;	Macros
+
+; ---------------------------------------------------------------------------------
+; Name: mGetString
+;
+; Gets a user inputted integer value as string
+;
+; Preconditions: do not use registers other than EAX, ECX and EDX
+;
+; Receives:
+; stringIn = string prompt address	(reference, input)
+; stringOut = string to store user input number value address	(reference, output)
+; length = user input's length	(output)
+;
+; returns: StringOut = user input number value as string representation's address
+;			length = user input's length
+; ---------------------------------------------------------------------------------
 mGetString MACRO stringIn, stringOut, length
 	;	preserve registers
 	PUSH	EAX
@@ -33,7 +49,18 @@ mGetString MACRO stringIn, stringOut, length
 	POP		EAX
 ENDM
 
-
+; ---------------------------------------------------------------------------------
+; Name: mDisplayString
+;
+; displays a string to console
+;
+; Preconditions: do not use registers other than EDX
+;
+; Receives:
+; stringA = string to display's address	(reference, input)
+;
+; returns: none
+; ---------------------------------------------------------------------------------
 mDisplayString MACRO stringA
 	;	preserve registers
 	PUSH	EDX
@@ -46,7 +73,7 @@ mDisplayString MACRO stringA
 	
 ENDM
 
-	MAX = 2		; max numbers to input
+	MAX = 10		; max numbers to input
 
 .data
 	; Main program
@@ -71,10 +98,16 @@ ENDM
 	
 
 	;	EC
+	ecIntro			BYTE	"**EC: DESCRIPTION:",0Ah
+					BYTE	"**1. Number each line of user input and display a running subtotal of the user¡¯s valid numbers. These displays must use WriteVal. (1 pt)",0Ah
+					BYTE	"**2. Implement procedures ReadFloatVal and WriteFloatVal for floating point values, using the FPU. ",0Ah
+					BYTE	"     These must be in addition to ReadVal and WriteVal and you must have a separate code block to demo them",0Ah
+					BYTE	"     (one 10-valid entry loop to demo ReadVal/WriteVal and one 10-valid-entry loop to demo ReadFloatVal and WriteFloatVal. (4pts)",0
 	count			DWORD	1
 	bracket			BYTE	") ",0
 	runningTotal	BYTE	"Total of valid numbers entered: ",0
 	total			DWORD	0
+	FloatArray		REAL10	10 DUP(?)
 
 
 .code
@@ -82,6 +115,7 @@ main PROC
 ; (insert executable instructions here)
 
 	;	introduction
+	PUSH	OFFSET ecIntro
 	PUSH	OFFSET intro_1
 	PUSH	OFFSET programTitle
 	CALL	introduction
@@ -128,13 +162,32 @@ main PROC
 main ENDP
 
 
+; ---------------------------------------------------------------------------------
+; Name: introduction
+;
+; prints introduction by using the macro mDisplayString
+;
+; Preconditions: ecIntro, Intro_1, and programTitle are strings
+;
+; Postconditions: none.
+;
+; Receives:
+;			[EBP + 16] = ecIntro	(input)
+;			[EBP + 12] = intro_1	(input)
+;			[EBP + 8] = programTitle	(input)
+; 
+;
+; returns: None
+; ---------------------------------------------------------------------------------
 introduction PROC
 	PUSH	EBP
 	MOV		EBP, ESP
 
-	mDisplayString	[EBP + 8]
+	mDisplayString	[EBP + 8]			; programTitle
 	CALL	CrLf
-	mDisplayString	[EBP + 12]
+	mDisplayString	[EBP + 12]			; intro_1
+	CALL	CrLf
+	mDisplayString	[EBP + 16]			; ecIntro
 	CALL	CrLf
 	CALL	CrLf
 
@@ -147,28 +200,35 @@ introduction ENDP
 ; ---------------------------------------------------------------------------------
 ; Name: ReadVal
 ;
-; Output introduction to user
+; takes a userinput of a integer as string values between [-2,147,483,648, +2,147,483,647], 
+;	and convert them into signed integer values store them to numArray
 ;
-; Preconditions: 'programTitle', 'authorName', 'intro_1', are strings.
+; Preconditions: 'prompt', 'numString', 'error' 'bracket', 'runningTotal', 'display' are strings
+;				 'len', 'count', 'total' are unsigned integers
+;				 'numArray' is a signed array
+;				 'MAX' is a global variable
 ;
 ; Postconditions: None
 ;
-; Receives: [EBP + 8] 'prompt'(macro reference, input), 
-;			[EBP + 12] 'numString' (macro reference, output), 
-;			[EBP + 16] 'len' (macro reference, output)
-;			[EBP + 20] 'numArray' (reference, output)
+; Receives: [EBP + 8] 'prompt'	(macro reference, input), 
+;			[EBP + 12] 'numString'	(macro reference, input), 
+;			[EBP + 16] 'len'	(macro reference, input)
+;			[EBP + 20] 'numArray'	(reference, output)
 ;			[EBP + 24] 'error'	  (reference, input)
-;			[EBP + 28] 'count'	  (reference, output)
+;			[EBP + 28] 'count'	  (output)
 ;			[EBP + 32] 'bracket'  (macro reference input)
-;			[EBP + 36] 'max'
-;			[EBP + 40] 'display'
-;			[EBP + 44] 'runningTotal'
-;			[EBP + 48] 'total'
+;			[EBP + 36] 'MAX'	(global variable, input)
+;			[EBP + 40] 'display'	(reference, output)
+;			[EBP + 44] 'runningTotal'	(reference, input)
+;			[EBP + 48] 'total'	(output)
 ;
-; Returns: None
+; Returns: numArray is changed to fill 10 signed integers. 
+;			len is changed into user input's length
+;			count and total are changed into values equal to MAX and MAX - 1.
+;			display is changed.
 ; ---------------------------------------------------------------------------------
 ReadVal PROC
-	;	preserve registers
+	;	preserve registers and flags
 	PUSH	EBP
 	MOV		EBP, ESP
 	PUSH	EAX
@@ -177,7 +237,7 @@ ReadVal PROC
 	PUSH	EDX
 	PUSH	ESI
 	PUSH	EDI
-	PUSHFD						; preserve all flags
+	PUSHFD						
 
 	; initiate outer loop values
 	MOV		ECX, [EBP + 36]		;	MAX, outer loop counter
@@ -186,12 +246,10 @@ ReadVal PROC
 	; outer loop
 _prompt:	
 	; display counted lines
-	PUSH	[EBP + 28]
-	PUSH	[EBP + 40]
+	PUSH	[EBP + 28]			;	count
+	PUSH	[EBP + 40]			;	display
 	CALL	WriteVal
-	
-	; display prompt
-	mDisplayString	[EBP + 32]
+	mDisplayString	[EBP + 32]	;	bracket
 
 	; mGetString prompt, numString, len
 	mGetString	[EBP + 8], [EBP + 12], [EBP + 16]
@@ -201,7 +259,7 @@ _prompt:
 	MOV		EAX, 0
 	MOV		ESI, [EBP + 12]		;	numString
 
-	;	checks if user input has sign value infront
+	;	checks if user input has a sign in front
 _checkSign:
 	MOV		AL,	[ESI]
 	CMP		AL, 45				; - sign
@@ -209,8 +267,8 @@ _checkSign:
 	CMP		AL, 43				; + sign
 	JE		_setPositive
 
-	MOV		EAX, [EBP + 16]			; len = 11
-	CMP		EAX, 11				;	if len > 11, sign + digit, then error
+	MOV		EAX, [EBP + 16]		; len
+	CMP		EAX, 10 			; if len > 10, with no sign, then error
 	JG		_error
 
 	OR		EAX, 1				; if no sign, assume positive, set sign to positive
@@ -219,11 +277,11 @@ _checkSign:
 
 _setNegative:
 	; len - 1, ignore sign
-	MOV		EAX, [EBP + 16]			
-	CMP		EAX, 11				;	if len > 11, sign + digit, then error
+	MOV		EAX, [EBP + 16]		; len
+	CMP		EAX, 11				; if len > 11, sign + digit, then error
 	JG		_error
 	SUB		EAX, 1
-	MOV		[EBP + 16], EAX
+	MOV		[EBP + 16], EAX		
 
 	MOV		EAX, 0
 	ADD		ESI, 1				; increment to next byte after sign
@@ -233,11 +291,11 @@ _setNegative:
 
 _setPositive:
 	; len - 1, ignore sign
-	MOV		EAX, [EBP + 16]			; len = 11
-	CMP		EAX, 11				;	if len > 11, sign + digit, then error
+	MOV		EAX, [EBP + 16]		; len
+	CMP		EAX, 11				; if len > 11, sign + digit, then error
 	JG		_error
 	SUB		EAX, 1
-	MOV		[EBP + 16], EAX
+	MOV		[EBP + 16], EAX		
 
 	MOV		EAX, 0
 	ADD		ESI, 1				; increment to next byte after sign
@@ -251,12 +309,12 @@ _setPositive:
 		;	initialize innter loop values
 		PUSH	ECX					; preserve outer loop counter
 
-		; preserve ESI and EDI and sign flag for Pos/Neg check and if not num 
+		; preserve ESI and EDI for if notNum and sign flag for Pos/Neg check  
 		PUSH	ESI					
 		PUSH	EDI
 		PUSHFD
 
-		MOV		ECX, [EBP + 16]		;	inner loop counter = len
+		MOV		ECX, [EBP + 16]		; inner loop counter = len
 
 		;	if number length = 10 and first digit > 2 then error
 		MOV		EAX, 0
@@ -268,11 +326,9 @@ _setPositive:
 
 	; check and convert number from string to integer
 	_convert:
-		;	get digit at StringByte
+		;	get digit at String Byte value
 		MOV		EAX, 0
 		MOV		AL, [ESI]			; move digit to AL
-
-		CMP		ECX, 10
 
 		;	check if numeric
 		CMP		EAX, 48				; 0
@@ -337,17 +393,18 @@ _restore:
 
 ; restore registers and flags, clear exisiting value in position
 _notNum:
-	POPFD						; restore EDI and ESI and sign flag
+	; restore EDI and ESI and sign flag
+	POPFD						
 	POP		EDI					
 	POP		ESI
 	POP		ECX					; restore outer loop counter
 
 _error:
-	MOV		EAX, 0				; clear [EDI]
-	MOV		[EDI], EAX
+	MOV		EAX, 0				
+	MOV		[EDI], EAX			; clear [EDI]
 
 
-	mDisplayString	[EBP + 24]	; ERROR prompt
+	mDisplayString	[EBP + 24]	; ERROR
 	CALL	CrLf
 		
 	; valid numbers inputted 
@@ -363,8 +420,8 @@ _error:
 _negNum:
 	MOV		EDX, [EDI]
 	XOR		EAX, EAX
-	SUB		EAX, EDX				; negate EAX from positive to negative, same as NOT EAX
-	MOV		[EDI], EAX				; move negated EAX back to [EDI]
+	SUB		EAX, EDX				; negate value from positive to negative, same as NOT EAX
+	MOV		[EDI], EAX				; move negated value back to [EDI]
 
 	JMP	_displayValid
 
@@ -377,23 +434,23 @@ _posNum:
 
 _displayValid:
 	; increase line number, count++
-	MOV		EAX, [EBP +28]			
+	MOV		EAX, [EBP +28]				; count
 	ADD		EAX, 1
-	MOV		[EBP + 28], EAX
+	MOV		[EBP + 28], EAX		
 
 	; increase total number, total++
-	MOV		EAX, [EBP +48]			
+	MOV		EAX, [EBP +48]				; total
 	ADD		EAX, 1
 	MOV		[EBP + 48], EAX
 
 	; display valid numbers inputted 
-	mDisplayString	[EBP + 44]	; runningTotal
+	mDisplayString	[EBP + 44]			; runningTotal
 	PUSH	[EBP + 48]
-	PUSH	[EBP + 40]
+	PUSH	[EBP + 40]					; display
 	CALL	WriteVal
 	CALL	CrLf
 
-	DEC		ECX						; decrease ECX and loop
+	DEC		ECX						; decrease ECX, jump if ECX = 0
 	JECXZ	_pop
 	ADD		EDI, 4					; move to next array elemnt
 
@@ -401,8 +458,8 @@ _displayValid:
 
 
 _pop:
-	;	restore registers
-	POPFD							; restore all flags
+	;	restore registers and flags
+	POPFD							
 	POP		EDI
 	POP		ESI
 	POP		EDX
@@ -414,10 +471,25 @@ _pop:
 	RET		44
 ReadVal ENDP
 
-;	[EBP + 8] 'display'
-;	[EBP + 12] some number
+
+; ---------------------------------------------------------------------------------
+; Name: writeVal
+;
+; converts signed DWORD integers as strings
+;
+; Preconditions: 'display' is a string, 'some number' is a integer value
+;
+; Postconditions: none.
+;
+; Receives:
+;			[EBP + 12] = some number	(input)
+;			[EBP + 8] = display			(reference, output)
+; 
+;
+; returns: display is into string representation of some number
+; ---------------------------------------------------------------------------------
 WriteVal PROC
-	;	preserve registers
+	;	preserve registers and flags
 	PUSH	EBP
 	MOV		EBP, ESP
 	PUSH	EAX
@@ -426,7 +498,7 @@ WriteVal PROC
 	PUSH	EDX
 	PUSH	ESI
 	PUSH	EDI
-	PUSHFD						; preserve all flags
+	PUSHFD						
 
 	;	clears exisiting value in display
 	MOV		ECX, 11
@@ -447,41 +519,43 @@ _clear_memory:
 	JL		_negative
 	JGE		_positive
 
+	;	if number is negative, negates the number
 _negative:
 	MOV		EDX, [EBP + 12]
 	XOR		EAX, EAX
 	SUB		EAX, EDX				; negate EAX from negative to positive, same as NOT EAX
-	MOV		ECX, 0
 	JMP		_divide
 
+	;	if number is positive
 _positive:
 	MOV		EAX, [EBP + 12]
-	MOV		ECX, 0
 	JMP		_divide
 
+	;	divides number by 10 and put them into display as string representation
 _divide:
+	;	divide num/10
 	CDQ
 	MOV		EDX, 0
 	MOV		EBX, 10
 	DIV		EBX
 
-	MOV		ECX, [EDI]				;	preserve [EDI]
+	;	add digit into [EDI] BYTE value
 	ADD		EDX, 48					;	remainder + 48
-	MOV		[EDI], EDX
-	ADD		[EDI], ECX				;	add preserved value next to the new value bytes
+	ADD		[EDI], EDX
 	SUB		EDI, 1
 	CMP		EAX, 0
 	JE		_sign
 	JMP		_divide
 
+	;	adds sign value if number is negative
 _sign:
 	MOV		EAX, [EBP + 12]
 	CMP		EAX, 0					; if num > 0, then write. num < 0 add sign
 	JGE		_write
-	MOV		ECX, [EDI]				;	preserve [EDI]
+
+	;	add sign into [EDI] BYTE value
 	MOV		EDX, 45					;	remainder + 48
-	MOV		[EDI], EDX
-	ADD		[EDI], ECX				;	add preserved value next to the new value bytes
+	ADD		[EDI], EDX
 	SUB		EDI, 1
 
 _write:
@@ -490,8 +564,8 @@ _write:
 
 
 _pop:
-	;	restore registers
-	POPFD							; restore all flags
+	;	restore registers and flags
+	POPFD							
 	POP		EDI
 	POP		ESI
 	POP		EDX
@@ -503,9 +577,27 @@ _pop:
 	RET		8
 WriteVal ENDP
 
-
+; ---------------------------------------------------------------------------------
+; Name: displayArray
+;
+; displays converted signed DWORD array as strings
+;
+; Preconditions: 'display', 'space', 'list' are strings, 'numArray' is an array with signed intgers
+;					'MAX' is a global variable
+;
+; Postconditions: none.
+;
+; Receives: [EBP + 24] = space		(reference, input)
+;			[EBP + 20] = list		(reference, input)
+;			[EBP + 16] = MAX		(global variable, input)
+;			[EBP + 12] = numArray	(reference, input)
+;			[EBP + 8] = display		(reference, output)
+; 
+;
+; returns: none
+; ---------------------------------------------------------------------------------
 displayArray PROC
-	;	preserve registers
+	;	preserve registers and flags
 	PUSH	EBP
 	MOV		EBP, ESP
 	PUSH	EAX
@@ -514,27 +606,27 @@ displayArray PROC
 	PUSH	EDX
 	PUSH	ESI
 	PUSH	EDI
-	PUSHFD						; preserve all flags
+	PUSHFD					
 
 	; initialize registers
 	MOV		ESI, [EBP + 12]		; numArray	
 	MOV		ECX, [EBP + 16]		; MAX
 
-	mDisplayString	[EBP + 20]	; 
+	mDisplayString	[EBP + 20]	; list
 	CALL	CrLf
 
 	; print numbers from array
 _list:
 	PUSH	[ESI]
-	PUSH	[EBP + 8]
+	PUSH	[EBP + 8]			; display
 	CALL	WriteVal
-	mDisplayString	[EBP + 24]	;
-	ADD		ESI, 4
+	mDisplayString	[EBP + 24]	; space
+	ADD		ESI, 4				; move to next array element
 	LOOP	_list
 	CALL	CrLf
 
-	;	restore registers
-	POPFD						; restore all flags
+	;	restore registers and flags
+	POPFD						
 	POP		EDI
 	POP		ESI
 	POP		EDX
@@ -546,8 +638,28 @@ _list:
 	RET		20
 displayArray ENDP
 
+
+; ---------------------------------------------------------------------------------
+; Name: displaySum
+;
+; displays added sum of numArray as string representation
+;
+; Preconditions: 'display', 'sumStr' are strings, 'numArray' is an array with signed intgers
+;					'MAX' is a global variable,	 'sum' is an integer
+;
+; Postconditions: none.
+;
+; Receives: [EBP + 24] = sum		(reference, output)
+;			[EBP + 20] = sumStr		(reference, input)
+;			[EBP + 16] = MAX		(global variable, input)
+;			[EBP + 12] = numArray	(reference, input)
+;			[EBP + 8] = display		(reference, output)
+; 
+;
+; returns: sum = sum of values in numArray
+; ---------------------------------------------------------------------------------
 displaySum PROC
-	;	preserve registers
+	;	preserve registers and flags
 	PUSH	EBP
 	MOV		EBP, ESP
 	PUSH	EAX
@@ -556,15 +668,15 @@ displaySum PROC
 	PUSH	EDX
 	PUSH	ESI
 	PUSH	EDI
-	PUSHFD						; preserve all flags
+	PUSHFD						
 
 	; initialize registers
 	MOV		ESI, [EBP + 12]		; numArray	
 	MOV		ECX, [EBP + 16]		; MAX 
 	MOV		EAX, 0
-	MOV		EDI, [EBP + 24]
+	MOV		EDI, [EBP + 24]		; sum
 
-	mDisplayString	[EBP + 20]	; 
+	mDisplayString	[EBP + 20]	; sumstr
 	CALL	CrLf
 
 	; add numbers from array to EAX
@@ -574,15 +686,15 @@ _sum:
 	LOOP	_sum
 
 	; move EAX to sum
-	MOV		[EDI], EAX
+	MOV		[EDI], EAX	
 
-	PUSH	[EDI]				; sum
+	PUSH	[EDI]				
 	PUSH	[EBP + 8]			; display
 	CALL	WriteVal
 	CALL	CrLf
 
-	;	restore registers
-	POPFD						; restore all flags
+	;	restore registers and flags
+	POPFD						
 	POP		EDI
 	POP		ESI
 	POP		EDX
@@ -594,8 +706,28 @@ _sum:
 	RET		20
 displaySum ENDP
 
+
+; ---------------------------------------------------------------------------------
+; Name: displaySum
+;
+; displays added sum of numArray as string representation
+;
+; Preconditions: 'display', 'avgStr' are strings, 
+;					'MAX' is a global variable,	 'sum' and 'avg' are integers.
+;
+; Postconditions: none.
+;
+; Receives: [EBP + 24] = sum		(input)
+;			[EBP + 20] = avgStr		(reference, input)
+;			[EBP + 16] = MAX		(global variable, input)
+;			[EBP + 12] = avg		(reference, output)
+;			[EBP + 8] = display		(reference, output)
+; 
+;
+; returns: avg = avg of values in numArray
+; ---------------------------------------------------------------------------------
 displayAvg PROC
-	;	preserve registers
+	;	preserve registers and flags
 	PUSH	EBP
 	MOV		EBP, ESP
 	PUSH	EAX
@@ -604,12 +736,12 @@ displayAvg PROC
 	PUSH	EDX
 	PUSH	ESI
 	PUSH	EDI
-	PUSHFD						; preserve all flags
+	PUSHFD						
 	
 	;	initialize registers
 	MOV		EDI, [EBP + 12]		; avg 
 		
-	mDisplayString	[EBP + 20]	;
+	mDisplayString	[EBP + 20]	; avgStr
 	CALL	CrLf
 
 	;	get average by sum/MAX
@@ -621,12 +753,12 @@ displayAvg PROC
 	;	move EAX to avg
 	MOV		[EDI], EAX
 
-	PUSH	[EDI]				; avg
+	PUSH	[EDI]			
 	PUSH	[EBP + 8]			; display
 	CALL	WriteVal
 
-	;	restore registers
-	POPFD						; restore all flags
+	;	restore registers and flags
+	POPFD						
 	POP		EDI
 	POP		ESI
 	POP		EDX
@@ -637,5 +769,6 @@ displayAvg PROC
 
 	RET		20
 displayAvg ENDP
+
 
 END main
