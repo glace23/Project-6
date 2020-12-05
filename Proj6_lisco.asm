@@ -4,9 +4,10 @@ TITLE String Primitives and Macros     (Proj6_lisco.asm)
 ; Last Modified: 12/04/20 - 15:00
 ; OSU email address: lisco@oregonstate.edu
 ; Course number/section:   CS271 Section 400
-; Project Number:  Project 5         
-; Due Date: 11/22/20
-; Description: This program outputs an array of random numbers, then output sorted array, and finally the count of each number.
+; Project Number:  Project 6         
+; Due Date: 12/06/20
+; Description: This program takes user input numeric values as strings. Then converts and stores them into an array of signed dword values.  
+;				Diplays the array, sum and avg of all values as strings.
 
 INCLUDE Irvine32.inc
 
