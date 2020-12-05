@@ -754,6 +754,7 @@ displayAvg PROC
 	PUSH	[EDI]			
 	PUSH	[EBP + 8]			; display
 	CALL	WriteVal
+	CALL	CrLf
 
 	;	restore registers and flags
 	POPFD						

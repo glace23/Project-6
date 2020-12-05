@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.27.29112.0	    12/04/20 22:26:25
+Microsoft (R) Macro Assembler Version 14.28.29334.0	    12/05/20 11:57:18
 2String Primitives and Macros     (Proj6_lisco.asm	     Page 1 - 1
 
 
@@ -8,9 +8,10 @@ Microsoft (R) Macro Assembler Version 14.27.29112.0	    12/04/20 22:26:25
 				; Last Modified: 12/04/20 - 15:00
 				; OSU email address: lisco@oregonstate.edu
 				; Course number/section:   CS271 Section 400
-				; Project Number:  Project 5         
-				; Due Date: 11/22/20
-				; Description: This program outputs an array of random numbers, then output sorted array, and finally the count of each number.
+				; Project Number:  Project 6         
+				; Due Date: 12/06/20
+				; Description: This program takes user input numeric values as strings. Then converts and stores them into an array of signed dword values.  
+				;				Diplays the array, sum and avg of all values as strings.
 
 				INCLUDE Irvine32.inc
 			      C ; Include file for Irvine32.lib             (Irvine32.inc)
@@ -976,23 +977,24 @@ Microsoft (R) Macro Assembler Version 14.27.29112.0	    12/04/20 22:26:25
  000003CB  FF 37			PUSH	[EDI]			
  000003CD  FF 75 08			PUSH	[EBP + 8]			; display
  000003D0  E8 FFFFFEBB			CALL	WriteVal
+ 000003D5  E8 00000000 E		CALL	CrLf
 
 					;	restore registers and flags
- 000003D5  9D				POPFD						
- 000003D6  5F				POP		EDI
- 000003D7  5E				POP		ESI
- 000003D8  5A				POP		EDX
- 000003D9  59				POP		ECX
- 000003DA  5B				POP		EBX
- 000003DB  58				POP		EAX
- 000003DC  5D				POP		EBP
+ 000003DA  9D				POPFD						
+ 000003DB  5F				POP		EDI
+ 000003DC  5E				POP		ESI
+ 000003DD  5A				POP		EDX
+ 000003DE  59				POP		ECX
+ 000003DF  5B				POP		EBX
+ 000003E0  58				POP		EAX
+ 000003E1  5D				POP		EBP
 
- 000003DD  C2 0014			RET		20
- 000003E0			displayAvg ENDP
+ 000003E2  C2 0014			RET		20
+ 000003E5			displayAvg ENDP
 
 
 				END main
-Microsoft (R) Macro Assembler Version 14.27.29112.0	    12/04/20 22:26:25
+Microsoft (R) Macro Assembler Version 14.28.29334.0	    12/05/20 11:57:18
 2String Primitives and Macros     (Proj6_lisco.asm	     Symbols 2 - 1
 
 
@@ -1095,7 +1097,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 00000383 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000003E0 Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000003E5 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -1227,7 +1229,7 @@ WriteVal . . . . . . . . . . . .	P Near	 00000290 _TEXT	Length= 00000082 Public 
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 displayArray . . . . . . . . . .	P Near	 00000312 _TEXT	Length= 00000048 Public STDCALL
   _list  . . . . . . . . . . . .	L Near	 00000331 _TEXT	
-displayAvg . . . . . . . . . . .	P Near	 000003A4 _TEXT	Length= 0000003C Public STDCALL
+displayAvg . . . . . . . . . . .	P Near	 000003A4 _TEXT	Length= 00000041 Public STDCALL
 displaySum . . . . . . . . . . .	P Near	 0000035A _TEXT	Length= 0000004A Public STDCALL
   _sum . . . . . . . . . . . . .	L Near	 00000381 _TEXT	
 introduction . . . . . . . . . .	P Near	 000000A8 _TEXT	Length= 00000039 Public STDCALL
