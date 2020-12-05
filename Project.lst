@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.27.29112.0	    12/04/20 22:24:55
+Microsoft (R) Macro Assembler Version 14.27.29112.0	    12/04/20 22:26:25
 2String Primitives and Macros     (Proj6_lisco.asm	     Page 1 - 1
 
 
@@ -225,7 +225,7 @@ Microsoft (R) Macro Assembler Version 14.27.29112.0	    12/04/20 22:24:55
 	   20 44 45 53 43
 	   52 49 50 54 49
 	   4F 4E 3A 0A
- 00000269  2A 2A 31 2E 20						BYTE	"**1. Number each line of user input and display a running subtotal of the user¡¯s valid numbers. These displays must use WriteVal. (1 pt)",0Ah
+ 00000269  2A 2A 31 2E 20						BYTE	"**1. Number each line of user input and display a running subtotal of the user¡¯s valid numbers. These displays must use WriteVal. (1 pt)",0
 	   4E 75 6D 62 65
 	   72 20 65 61 63
 	   68 20 6C 69 6E
@@ -252,86 +252,18 @@ Microsoft (R) Macro Assembler Version 14.27.29112.0	    12/04/20 22:24:55
 	   20 57 72 69 74
 	   65 56 61 6C 2E
 	   20 28 31 20 70
-	   74 29 0A
- 000002F3  2A 2A 32 2E 20						BYTE	"**2. Implement procedures ReadFloatVal and WriteFloatVal for floating point values, using the FPU. ",0Ah
-	   49 6D 70 6C 65
-	   6D 65 6E 74 20
-	   70 72 6F 63 65
-	   64 75 72 65 73
-	   20 52 65 61 64
-	   46 6C 6F 61 74
-	   56 61 6C 20 61
-	   6E 64 20 57 72
-	   69 74 65 46 6C
-	   6F 61 74 56 61
-	   6C 20 66 6F 72
-	   20 66 6C 6F 61
-	   74 69 6E 67 20
-	   70 6F 69 6E 74
-	   20 76 61 6C 75
-	   65 73 2C 20 75
-	   73 69 6E 67 20
-	   74 68 65 20 46
-	   50 55 2E 20 0A
- 00000357  20 20 20 20 20						BYTE	"     These must be in addition to ReadVal and WriteVal and you must have a separate code block to demo them",0Ah
-	   54 68 65 73 65
-	   20 6D 75 73 74
-	   20 62 65 20 69
-	   6E 20 61 64 64
-	   69 74 69 6F 6E
-	   20 74 6F 20 52
-	   65 61 64 56 61
-	   6C 20 61 6E 64
-	   20 57 72 69 74
-	   65 56 61 6C 20
-	   61 6E 64 20 79
-	   6F 75 20 6D 75
-	   73 74 20 68 61
-	   76 65 20 61 20
-	   73 65 70 61 72
-	   61 74 65 20 63
-	   6F 64 65 20 62
-	   6C 6F 63 6B 20
-	   74 6F 20 64 65
-	   6D 6F 20 74 68
-	   65 6D 0A
- 000003C3  20 20 20 20 20						BYTE	"     (one 10-valid entry loop to demo ReadVal/WriteVal and one 10-valid-entry loop to demo ReadFloatVal and WriteFloatVal. (4pts)",0
-	   28 6F 6E 65 20
-	   31 30 2D 76 61
-	   6C 69 64 20 65
-	   6E 74 72 79 20
-	   6C 6F 6F 70 20
-	   74 6F 20 64 65
-	   6D 6F 20 52 65
-	   61 64 56 61 6C
-	   2F 57 72 69 74
-	   65 56 61 6C 20
-	   61 6E 64 20 6F
-	   6E 65 20 31 30
-	   2D 76 61 6C 69
-	   64 2D 65 6E 74
-	   72 79 20 6C 6F
-	   6F 70 20 74 6F
-	   20 64 65 6D 6F
-	   20 52 65 61 64
-	   46 6C 6F 61 74
-	   56 61 6C 20 61
-	   6E 64 20 57 72
-	   69 74 65 46 6C
-	   6F 61 74 56 61
-	   6C 2E 20 28 34
-	   70 74 73 29 00
- 00000445 00000001			count			DWORD	1
- 00000449 29 20 00			bracket			BYTE	") ",0
- 0000044C 54 6F 74 61 6C		runningTotal	BYTE	"Total of valid numbers entered: ",0
+	   74 29 00
+ 000002F3 00000001			count			DWORD	1
+ 000002F7 29 20 00			bracket			BYTE	") ",0
+ 000002FA 54 6F 74 61 6C		runningTotal	BYTE	"Total of valid numbers entered: ",0
 	   20 6F 66 20 76
 	   61 6C 69 64 20
 	   6E 75 6D 62 65
 	   72 73 20 65 6E
 	   74 65 72 65 64
 	   3A 20 00
- 0000046D 00000000			total			DWORD	0
- 00000471  0000000A [			FloatArray		REAL10	10 DUP(?)
+ 0000031B 00000000			total			DWORD	0
+ 0000031F  0000000A [			FloatArray		REAL10	10 DUP(?)
 	    00000000000000000000
 	   ]
 
@@ -347,12 +279,12 @@ Microsoft (R) Macro Assembler Version 14.27.29112.0	    12/04/20 22:24:55
  0000000F  E8 00000094			CALL	introduction
 
 					;	ReadVal
- 00000014  FF 35 0000046D R		PUSH	total
- 0000001A  68 0000044C R		PUSH	OFFSET runningTotal
+ 00000014  FF 35 0000031B R		PUSH	total
+ 0000001A  68 000002FA R		PUSH	OFFSET runningTotal
  0000001F  68 000001CB R		PUSH	OFFSET display
  00000024  6A 0A			PUSH	MAX
- 00000026  68 00000449 R		PUSH	OFFSET bracket
- 0000002B  FF 35 00000445 R		PUSH	count
+ 00000026  68 000002F7 R		PUSH	OFFSET bracket
+ 0000002B  FF 35 000002F3 R		PUSH	count
  00000031  68 000001A3 R		PUSH	OFFSET error
  00000036  68 00000177 R		PUSH	OFFSET numArray
  0000003B  68 00000173 R		PUSH	OFFSET len
@@ -1060,7 +992,7 @@ Microsoft (R) Macro Assembler Version 14.27.29112.0	    12/04/20 22:24:55
 
 
 				END main
-Microsoft (R) Macro Assembler Version 14.27.29112.0	    12/04/20 22:24:55
+Microsoft (R) Macro Assembler Version 14.27.29112.0	    12/04/20 22:26:25
 2String Primitives and Macros     (Proj6_lisco.asm	     Symbols 2 - 1
 
 
@@ -1162,7 +1094,7 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 000004D5 Para	  Public  'DATA'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000383 Para	  Public  'DATA'	
 _TEXT  . . . . . . . . . . . . .	32 Bit	 000003E0 Para	  Public  'CODE'	
 
 
@@ -1361,7 +1293,7 @@ FILE_WRITE_DATA  . . . . . . . .	Number	 00000002h
 FOCUS_EVENT  . . . . . . . . . .	Number	 00000010h   
 FORMAT_MESSAGE_ALLOCATE_BUFFER .	Number	 00000100h   
 FORMAT_MESSAGE_FROM_SYSTEM . . .	Number	 00001000h   
-FloatArray . . . . . . . . . . .	TByte	 00000471 _DATA	
+FloatArray . . . . . . . . . . .	TByte	 0000031F _DATA	
 FormatMessage  . . . . . . . . .	Text   	 FormatMessageA
 GENERIC_ALL  . . . . . . . . . .	Number	 10000000h   
 GENERIC_EXECUTE  . . . . . . . .	Number	 20000000h   
@@ -1524,9 +1456,9 @@ avgStr . . . . . . . . . . . . .	Byte	 0000022B _DATA
 avg  . . . . . . . . . . . . . .	DWord	 00000252 _DATA	
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
-bracket  . . . . . . . . . . . .	Byte	 00000449 _DATA	
+bracket  . . . . . . . . . . . .	Byte	 000002F7 _DATA	
 brown  . . . . . . . . . . . . .	Number	 00000006h   
-count  . . . . . . . . . . . . .	DWord	 00000445 _DATA	
+count  . . . . . . . . . . . . .	DWord	 000002F3 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 digit  . . . . . . . . . . . . .	DWord	 0000019F _DATA	
 display  . . . . . . . . . . . .	Byte	 000001CB _DATA	
@@ -1550,11 +1482,11 @@ numString  . . . . . . . . . . .	Byte	 00000164 _DATA
 programTitle . . . . . . . . . .	Byte	 00000000 _DATA	
 prompt . . . . . . . . . . . . .	Byte	 00000144 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-runningTotal . . . . . . . . . .	Byte	 0000044C _DATA	
+runningTotal . . . . . . . . . .	Byte	 000002FA _DATA	
 space  . . . . . . . . . . . . .	Byte	 000001D9 _DATA	
 sumStr . . . . . . . . . . . . .	Byte	 00000204 _DATA	
 sum  . . . . . . . . . . . . . .	DWord	 00000227 _DATA	
-total  . . . . . . . . . . . . .	DWord	 0000046D _DATA	
+total  . . . . . . . . . . . . .	DWord	 0000031B _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   

@@ -99,10 +99,7 @@ ENDM
 
 	;	EC
 	ecIntro			BYTE	"**EC: DESCRIPTION:",0Ah
-					BYTE	"**1. Number each line of user input and display a running subtotal of the user¡¯s valid numbers. These displays must use WriteVal. (1 pt)",0Ah
-					BYTE	"**2. Implement procedures ReadFloatVal and WriteFloatVal for floating point values, using the FPU. ",0Ah
-					BYTE	"     These must be in addition to ReadVal and WriteVal and you must have a separate code block to demo them",0Ah
-					BYTE	"     (one 10-valid entry loop to demo ReadVal/WriteVal and one 10-valid-entry loop to demo ReadFloatVal and WriteFloatVal. (4pts)",0
+					BYTE	"**1. Number each line of user input and display a running subtotal of the user¡¯s valid numbers. These displays must use WriteVal. (1 pt)",0
 	count			DWORD	1
 	bracket			BYTE	") ",0
 	runningTotal	BYTE	"Total of valid numbers entered: ",0
