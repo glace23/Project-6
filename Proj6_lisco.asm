@@ -1,7 +1,7 @@
 TITLE String Primitives and Macros     (Proj6_lisco.asm)
 
 ; Author: Scott Li
-; Last Modified: 11/22/20 - 15:00
+; Last Modified: 12/04/20 - 15:00
 ; OSU email address: lisco@oregonstate.edu
 ; Course number/section:   CS271 Section 400
 ; Project Number:  Project 5         
